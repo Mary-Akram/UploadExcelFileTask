@@ -22,8 +22,9 @@ namespace UploadExcelFileTask.Controllers
 
         public AAISDetailsController(AAISContext context,IUploadExcelFile _repo)
         {
-            _context =new AAISContext();
-            _repo=repo;
+            _context = context;
+            repo=_repo;
+
         }
 
         [HttpPost]

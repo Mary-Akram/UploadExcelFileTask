@@ -15,7 +15,7 @@ builder.Services.AddDbContext<AAISContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 //Allow Cross-Origin Resource Sharing
 builder.Services.AddCors();
-builder.Services.AddTransient<IUploadExcelFile, UploadExcelFile>();
+builder.Services.AddScoped<IUploadExcelFile,UploadExcelFile>();
 builder.Services.AddHttpContextAccessor();
 
 

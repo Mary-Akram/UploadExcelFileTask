@@ -19,35 +19,48 @@ namespace UploadExcelFileTask.Data.Repo
             this.hostEnvironment = _hostEnvironment;
             this.context = _context;
         }
-        public  FilePathandExtenstion UploadFile(ExcelFileInfo excelFileInfo)
+        public FilePathandExtenstion UploadFile(ExcelFileInfo excelFileInfo)
         {
-            if (excelFileInfo.excelFile == null)
-                throw new Exception("File is Not Received...");
-            // Create the Directory if it is not exist
-            string dirPath = Path.Combine(hostEnvironment.WebRootPath, "ReceivedReports");
-            if (!Directory.Exists(dirPath))
+            try
             {
-                Directory.CreateDirectory(dirPath);
+                if (excelFileInfo.excelFile == null)
+                    throw new Exception("File is Not Received...");
+                // Create the Directory if it is not exist
+                string dirPath = Path.Combine(hostEnvironment.WebRootPath, "ReceivedReports");
+                if (!Directory.Exists(dirPath))
+                {
+                    Directory.CreateDirectory(dirPath);
+                }
+                // make sure that only Excel file is used 
+                string dataFileName = Path.GetFileName(excelFileInfo.excelFile.FileName);
+                string extension = Path.GetExtension(dataFileName);
+                string[] allowedExtsnions = new string[] { ".xls", ".xlsx" };
+                //make sure that file having extension as either.xls or.xlsx is uploaded.");
+                if (!allowedExtsnions.Contains(extension))
+                    throw new Exception("Sorry! This file is not allowed,Excel sheet only ");
+
+
+                // Make a Copy of the Posted File from the Received HTTP Request
+                string saveToPath = Path.Combine(dirPath, dataFileName);
+                using (FileStream stream = new FileStream(saveToPath, FileMode.Create))
+                {
+                    excelFileInfo.excelFile.CopyTo(stream);
+                }
+                FilePathandExtenstion file = new FilePathandExtenstion();
+                {
+                    file.filepath = saveToPath;
+                    file.extenstion = extension;
+                }
+                return file;
             }
-            // make sure that only Excel file is used 
-            string dataFileName = Path.GetFileName(excelFileInfo.excelFile.FileName);
-            string extension = Path.GetExtension(dataFileName);
-            string[] allowedExtsnions = new string[] { ".xls", ".xlsx" };
-            //make sure that file having extension as either.xls or.xlsx is uploaded.");
-            if (!allowedExtsnions.Contains(extension))
-                throw new Exception("Sorry! This file is not allowed,Excel sheet only ");
-            // Make a Copy of the Posted File from the Received HTTP Request
-            string saveToPath = Path.Combine(dirPath, dataFileName);
-            using (FileStream stream = new FileStream(saveToPath, FileMode.Create))
+            catch (Exception ex)
             {
-                excelFileInfo.excelFile.CopyTo(stream);
-            }
-            FilePathandExtenstion file=new FilePathandExtenstion();
-            {
-                file.filepath = saveToPath;
-                file.extenstion = extension;
-            }
-            return file;
+                if (ex.Message.Contains("because it is being used by another process"))
+                {
+                    throw new Exception("The file you are trying to save on is in use, please close it");
+                }
+                return null;
+         }
         }
         public async Task ImportExceltoDatabase(FilePathandExtenstion pathandExtenstion)
         {
