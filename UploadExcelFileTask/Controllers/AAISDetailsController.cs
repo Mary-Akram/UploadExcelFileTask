@@ -18,8 +18,6 @@ namespace UploadExcelFileTask.Controllers
     {
         private readonly AAISContext _context;
         private readonly IUploadExcelFile _repo;
-
-
         public AAISDetailsController(AAISContext context,IUploadExcelFile repo)
         {
            _context= context;
@@ -29,11 +27,10 @@ namespace UploadExcelFileTask.Controllers
         [HttpPost]
         public async Task<ActionResult<AAISDetail>> PostAAISDetail([FromForm] ExcelFileInfo excelFileInfo)
         {
-          if (excelFileInfo.excelFile == null)
-          {
-              return Problem("No Excel File .");
-          }
-
+            if (excelFileInfo.excelFile == null)
+            {
+                return Problem("No Excel File .");
+            }
           FilePathandExtenstion filePathandExtenstion =_repo.UploadFile(excelFileInfo);
             await _repo.ImportExceltoDatabase(filePathandExtenstion);
             await _context.SaveChangesAsync();
