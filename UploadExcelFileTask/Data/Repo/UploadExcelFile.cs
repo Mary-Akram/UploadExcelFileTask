@@ -21,8 +21,7 @@ namespace UploadExcelFileTask.Data.Repo
         }
         public FilePathandExtenstion UploadFile(ExcelFileInfo excelFileInfo)
         {
-            try
-            {
+          
                 if (excelFileInfo.excelFile == null)
                     throw new Exception("File is Not Received...");
                 // Create the Directory if it is not exist
@@ -52,16 +51,9 @@ namespace UploadExcelFileTask.Data.Repo
                     file.extenstion = extension;
                 }
                 return file;
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.Contains("because it is being used by another process"))
-                {
-                    throw new Exception("The file you are trying to save on is in use, please close it");
-                }
-                return null;
+           
          }
-        }
+       
         public async Task ImportExceltoDatabase(FilePathandExtenstion pathandExtenstion)
         {
             IExcelDataReader reader;
